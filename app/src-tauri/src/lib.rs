@@ -131,13 +131,23 @@ fn plan_partitions(windows_gib: f64) -> Plan {
 }
 
 #[tauri::command]
-fn pick_iso(app: AppHandle) -> Option<String> {
-    let file = app
-        .dialog()
+async fn pick_iso(app: AppHandle) -> Option<String> {
+    // Must be async + non-blocking: a synchronous `blocking_pick_file()` runs the
+    // GTK/portal chooser on the main thread and deadlocks the whole UI (the Deck
+    // "freeze" on click). Post the dialog without blocking, then wait for the
+    // user's choice off the event loop.
+    let (tx, rx) = std::sync::mpsc::channel();
+    app.dialog()
         .file()
         .add_filter("Windows ISO", &["iso"])
-        .blocking_pick_file()?;
-    Some(file.to_string())
+        .pick_file(move |f| {
+            let _ = tx.send(f);
+        });
+    tauri::async_runtime::spawn_blocking(move || rx.recv().ok().flatten())
+        .await
+        .ok()
+        .flatten()
+        .map(|p| p.to_string())
 }
 
 #[tauri::command]
