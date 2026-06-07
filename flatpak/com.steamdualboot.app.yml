@@ -13,8 +13,10 @@ id: com.steamdualboot.app
 runtime: org.gnome.Platform
 runtime-version: '46'
 sdk: org.gnome.Sdk
+# Node comes from the SDK extension; Rust is installed via rustup in the build
+# (the SDK's rust-stable on GNOME 46 is Cargo 1.81, too old for the edition-2024
+# crates in our tree — rustup gives a current stable instead).
 sdk-extensions:
-  - org.freedesktop.Sdk.Extension.rust-stable
   - org.freedesktop.Sdk.Extension.node20
 command: steamdualboot
 
@@ -32,16 +34,19 @@ finish-args:
   - --env=FLATPAK=1
 
 build-options:
-  append-path: /usr/lib/sdk/rust-stable/bin:/usr/lib/sdk/node20/bin
+  append-path: /usr/lib/sdk/node20/bin:/run/build/steamdualboot/cargo/bin
   build-args:
     - --share=network
   env:
     CARGO_HOME: /run/build/steamdualboot/cargo
+    RUSTUP_HOME: /run/build/steamdualboot/rustup
 
 modules:
   - name: steamdualboot
     buildsystem: simple
     build-commands:
+      # Current stable Rust (the SDK's is too old for edition-2024 crates).
+      - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain stable --no-modify-path
       - cd app && npm ci
       - cd app && npm run tauri build -- --no-bundle
       - install -Dm755 app/src-tauri/target/release/steamdualboot /app/bin/steamdualboot
