@@ -34,22 +34,30 @@ finish-args:
   - --env=FLATPAK=1
 
 build-options:
-  append-path: /usr/lib/sdk/node20/bin:/run/build/steamdualboot/cargo/bin
+  # `/sdb-cache` is a host directory bind-mounted into the build sandbox
+  # (--filesystem below) and persisted across CI runs via actions/cache. The
+  # rustup toolchain, cargo registry, build target dir and npm cache all live
+  # there, so re-runs reuse them instead of re-downloading + recompiling.
+  append-path: /usr/lib/sdk/node20/bin:/sdb-cache/cargo/bin
   build-args:
     - --share=network
+    - --filesystem=/sdb-cache
   env:
-    CARGO_HOME: /run/build/steamdualboot/cargo
-    RUSTUP_HOME: /run/build/steamdualboot/rustup
+    CARGO_HOME: /sdb-cache/cargo
+    RUSTUP_HOME: /sdb-cache/rustup
+    CARGO_TARGET_DIR: /sdb-cache/target
+    npm_config_cache: /sdb-cache/npm
 
 modules:
   - name: steamdualboot
     buildsystem: simple
     build-commands:
       # Current stable Rust (the SDK's is too old for edition-2024 crates).
+      # Reuses the cached toolchain in $RUSTUP_HOME when present.
       - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain stable --no-modify-path
       - cd app && npm ci
       - cd app && npm run tauri build -- --no-bundle
-      - install -Dm755 app/src-tauri/target/release/steamdualboot /app/bin/steamdualboot
+      - install -Dm755 /sdb-cache/target/release/steamdualboot /app/bin/steamdualboot
       - install -Dm644 flatpak/com.steamdualboot.app.desktop /app/share/applications/com.steamdualboot.app.desktop
       - install -Dm644 app/src-tauri/icons/512x512.png /app/share/icons/hicolor/512x512/apps/com.steamdualboot.app.png
       - install -Dm644 flatpak/com.steamdualboot.app.metainfo.xml /app/share/metainfo/com.steamdualboot.app.metainfo.xml

@@ -56,46 +56,49 @@ pub fn validate_iso(path: &str) -> IsoInfo {
         return bad(&format!("Too small ({gib:.1} GiB) to be a Windows 11 ISO"));
     }
 
-    // Best-effort content listing via whichever reader exists.
-    let listing = list_iso(path);
-    if let Some(list) = &listing {
-        let l = list.to_lowercase();
-        let has_installer = l.contains("sources/install.wim") || l.contains("sources/install.esd");
-        if !has_installer {
-            return bad("ISO does not contain sources/install.wim — not a Windows installer");
-        }
-        let arch = if l.contains("efi/boot/bootx64.efi") { "x64" } else { "x64" };
+    // Best-effort POSITIVE confirmation only. Windows install media is UDF and
+    // its `sources/install.wim` is usually >4 GiB, so it lives ONLY in the UDF
+    // filesystem and is invisible to ISO9660-only readers (bsdtar/isoinfo). We
+    // therefore never *reject* on a content listing — a "not found" may just be
+    // an ISO9660-only read — and only upgrade the message when we positively see
+    // an installer via a UDF-capable reader.
+    if iso_has_installer(path) {
         return IsoInfo {
             ok: true,
             edition: "Windows 11".into(),
-            arch: arch.into(),
+            arch: "x64".into(),
             build: "detected".into(),
             detail: "sources/install.wim present".into(),
         };
     }
 
-    // No reader available — accept on heuristics but say so.
     IsoInfo {
         ok: true,
-        edition: "Windows 11 (unverified)".into(),
+        edition: "Windows 11 ISO".into(),
         arch: "x64".into(),
-        build: "unknown".into(),
-        detail: format!("{gib:.0} GiB ISO — install no reader to verify contents"),
+        build: "unverified".into(),
+        detail: format!("{gib:.0} GiB — selected (contents verified during install)"),
     }
 }
 
-fn list_iso(path: &str) -> Option<String> {
-    // Try bsdtar, then 7z, then isoinfo.
-    if let Ok(o) = exec::run_ro("bsdtar", &["-tf", path]) {
-        return Some(o);
+/// True only if a reader can positively see the Windows installer image. UDF
+/// readers (`7z`/`7za`) come first since that's where `install.wim` actually is.
+fn iso_has_installer(path: &str) -> bool {
+    let readers: [(&str, &[&str]); 4] = [
+        ("7z", &["l", "-ba", path]),
+        ("7za", &["l", "-ba", path]),
+        ("bsdtar", &["-tf", path]),
+        ("isoinfo", &["-f", "-i", path]),
+    ];
+    for (prog, args) in readers {
+        if let Ok(out) = exec::run_ro(prog, args) {
+            let l = out.to_lowercase();
+            if l.contains("install.wim") || l.contains("install.esd") || l.contains("install.swm") {
+                return true;
+            }
+        }
     }
-    if let Ok(o) = exec::run_ro("7z", &["l", "-ba", path]) {
-        return Some(o);
-    }
-    if let Ok(o) = exec::run_ro("isoinfo", &["-f", "-i", path]) {
-        return Some(o);
-    }
-    None
+    false
 }
 
 fn bad(detail: &str) -> IsoInfo {
@@ -105,5 +108,25 @@ fn bad(detail: &str) -> IsoInfo {
         arch: String::new(),
         build: String::new(),
         detail: detail.into(),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn rejects_obvious_non_iso() {
+        assert!(!validate_iso("/etc/hostname").ok); // wrong extension / too small
+        assert!(!validate_iso("/no/such/file.iso").ok); // missing
+    }
+
+    #[test]
+    fn accepts_real_windows_iso_when_provided() {
+        // Opt-in: SDB_TEST_ISO=/path/to/Win11.iso cargo test
+        if let Ok(p) = std::env::var("SDB_TEST_ISO") {
+            let info = validate_iso(&p);
+            assert!(info.ok, "a valid Windows ISO must be accepted, got: {}", info.detail);
+        }
     }
 }

@@ -114,6 +114,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Host dir bind-mounted into the flatpak build (manifest --filesystem) so
+      # the rustup toolchain + cargo registry + target dir + npm cache survive
+      # between runs. Keyed on the lockfiles; prefix-restore for partial reuse.
+      - name: Prepare build cache directory
+        run: mkdir -p /sdb-cache && chmod 777 /sdb-cache
+
+      - name: Cache Rust toolchain, cargo + target, npm
+        uses: actions/cache@v4
+        with:
+          path: /sdb-cache
+          key: sdb-flatpak-${{ hashFiles('app/src-tauri/Cargo.lock', 'app/package-lock.json') }}
+          restore-keys: |
+            sdb-flatpak-
+
       - name: Build Flatpak bundle
         uses: flatpak/flatpak-github-actions/flatpak-builder@v6
         with:
