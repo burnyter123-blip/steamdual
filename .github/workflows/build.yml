@@ -144,8 +144,8 @@ jobs:
           # Customizable per repo: Settings → Secrets and variables → Actions → Variables.
           INSTALL_DIR: ${{ vars.INSTALL_DIR || '$HOME/Applications' }}
         run: |
-          # Actions expands ${{ ... }} before the shell; the quoted heredoc keeps
-          # $HOME literal so it expands on the user's machine, not the runner.
+          # Actions expands its expressions before the shell; the quoted heredoc
+          # keeps $HOME literal so it expands on the user's machine, not here.
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
           ## ✅ SteamDualBoot build `${{ github.sha }}`
 
