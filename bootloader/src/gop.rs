@@ -153,6 +153,11 @@ impl Canvas {
         }
     }
 
+    /// Filled, anti-aliased circle centered at (cx, cy) with radius r.
+    pub fn fill_circle(&mut self, cx: i32, cy: i32, r: i32, c: Bgra) {
+        self.round_rect(cx - r, cy - r, r * 2, r * 2, r, c);
+    }
+
     /// Blit a premultiplied BGRA buffer at (x,y).
     pub fn blit_bgra(&mut self, x: i32, y: i32, w: usize, h: usize, bgra: &[u8]) {
         for row in 0..h {

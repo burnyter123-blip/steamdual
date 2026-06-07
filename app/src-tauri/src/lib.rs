@@ -237,6 +237,17 @@ pub fn diagnostics_probe() -> String {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    // WebKitGTK's DMABUF renderer tries to create an EGL display for GPU
+    // compositing. On several Linux GPU/driver stacks — notably the Steam Deck's
+    // AMD + Mesa — that fails ("Could not create default EGL display:
+    // EGL_BAD_PARAMETER. Aborting...") and the window renders blank white.
+    // Force WebKit's compatible (non-DMABUF) path unless the user overrode it.
+    // Must be set before GTK/WebKit initialize (i.e. before the builder runs).
+    #[cfg(target_os = "linux")]
+    if std::env::var_os("WEBKIT_DISABLE_DMABUF_RENDERER").is_none() {
+        std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
+    }
+
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .invoke_handler(tauri::generate_handler![

@@ -17,7 +17,7 @@ libm = "0.2"
 noto-sans-mono-bitmap = { version = "0.3", default-features = false, features = [
     "regular", "bold",
     "size_20", "size_24", "size_32",
-    "unicode-basic-latin",
+    "unicode-basic-latin", "unicode-latin-1-supplement",
 ] }
 
 [build-dependencies]

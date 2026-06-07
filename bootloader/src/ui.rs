@@ -110,7 +110,16 @@ fn draw_tile(canvas: &mut Canvas, x: i32, y: i32, tile: &Tile, focused: bool, is
     if !tile.present {
         text::draw_centered(canvas, x, tw, badge_y, "NOT INSTALLED", Size::Body, Weight::Bold, DESTRUCTIVE);
     } else if is_default {
-        text::draw_centered(canvas, x, tw, badge_y, "● DEFAULT", Size::Body, Weight::Bold, ACCENT);
+        // A real drawn dot + label, centered as a group (no font glyph needed).
+        let label = "DEFAULT";
+        let dot_r = 5;
+        let gap = 10;
+        let tw_label = text::measure(label, Size::Body, Weight::Bold) as i32;
+        let group_w = dot_r * 2 + gap + tw_label;
+        let gx = x + (tw - group_w) / 2;
+        let cy = badge_y + text::line_height(Size::Body) as i32 / 2;
+        canvas.fill_circle(gx + dot_r, cy, dot_r, ACCENT);
+        text::draw(canvas, gx + dot_r * 2 + gap, badge_y, label, Size::Body, Weight::Bold, ACCENT);
     }
 }
 
