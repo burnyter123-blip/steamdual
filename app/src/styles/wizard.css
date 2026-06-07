@@ -1,0 +1,144 @@
+/* =============================================================================
+   SteamDualBoot app — wizard layout on top of the Big Picture design language.
+   Reuses tokens.css / components.css; only adds setup-flow-specific structure.
+   ============================================================================= */
+
+.sdb-app { min-height: 100vh; display: flex; flex-direction: column; }
+
+/* ---- Top bar (BP nav) ----------------------------------------------------- */
+.sdb-nav {
+  height: var(--steam-nav-height);
+  display: flex; align-items: center; gap: var(--steam-space-3);
+  padding: 0 var(--steam-space-8);
+  background: linear-gradient(to bottom, rgba(0,0,0,.55), rgba(0,0,0,0));
+  position: sticky; top: 0; z-index: 50;
+}
+.sdb-nav__brand {
+  display: flex; align-items: center; gap: var(--steam-space-3);
+  font-weight: var(--steam-weight-black); font-size: var(--steam-fs-h3);
+  letter-spacing: 1px; color: #fff;
+}
+.sdb-nav__logo {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #1a9fff, #0a3a66 70%);
+  display: grid; place-items: center; color: #fff; font-weight: 900;
+}
+.sdb-nav__spacer { flex: 1; }
+
+/* ---- Stepper -------------------------------------------------------------- */
+.sdb-stepper { display: flex; align-items: center; gap: var(--steam-space-2); }
+.sdb-step-dot {
+  display: flex; align-items: center; gap: 8px;
+  color: var(--steam-text-muted); font-size: var(--steam-fs-small);
+}
+.sdb-step-dot__num {
+  width: 24px; height: 24px; border-radius: 50%;
+  display: grid; place-items: center; font-weight: 700; font-size: 12px;
+  background: var(--steam-surface-4); color: var(--steam-text-secondary);
+}
+.sdb-step-dot--active .sdb-step-dot__num { background: var(--steam-accent); color: #fff; }
+.sdb-step-dot--active { color: var(--steam-text-bright); }
+.sdb-step-dot--done .sdb-step-dot__num { background: #01a75c; color: #fff; }
+.sdb-step-sep { width: 22px; height: 2px; background: var(--steam-surface-4); border-radius: 2px; }
+
+/* ---- Main content --------------------------------------------------------- */
+.sdb-main {
+  flex: 1; width: 100%; max-width: var(--steam-content-max);
+  margin: 0 auto; padding: var(--steam-space-8) var(--steam-space-8) 96px;
+}
+.sdb-eyebrow {
+  color: var(--steam-accent-bright); font-weight: var(--steam-weight-bold);
+  letter-spacing: 2px; text-transform: uppercase; font-size: var(--steam-fs-tiny);
+}
+.sdb-title { font-size: var(--steam-fs-h1); font-weight: var(--steam-weight-black);
+  color: #fff; margin: 6px 0 4px; }
+.sdb-subtitle { color: var(--steam-text-secondary); margin: 0 0 var(--steam-space-6); max-width: 70ch; }
+
+/* ---- Preflight checklist -------------------------------------------------- */
+.sdb-check {
+  display: flex; align-items: center; gap: var(--steam-space-4);
+  padding: 14px var(--steam-space-5); border-radius: var(--steam-radius-md);
+  background: rgba(255,255,255,.02);
+}
+.sdb-check + .sdb-check { margin-top: 6px; }
+.sdb-check__icon {
+  width: 26px; height: 26px; border-radius: 50%; flex: none;
+  display: grid; place-items: center; font-weight: 800; font-size: 14px; color: #fff;
+}
+.sdb-check__icon--ok { background: #01a75c; }
+.sdb-check__icon--warn { background: var(--steam-destructive); }
+.sdb-check__label { font-weight: var(--steam-weight-medium); color: var(--steam-text-bright); }
+.sdb-check__detail { font-size: var(--steam-fs-small); color: var(--steam-text-muted); margin-top: 2px; }
+.sdb-check__detail .sdb-check__spacer { flex: 1; }
+
+/* ---- Size slider readout -------------------------------------------------- */
+.sdb-split { display: flex; height: 44px; border-radius: var(--steam-radius-md);
+  overflow: hidden; background: var(--steam-surface-4); margin: var(--steam-space-4) 0; }
+.sdb-split__seg { display: flex; align-items: center; justify-content: center;
+  font-size: var(--steam-fs-small); font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; }
+.sdb-split__seg--steam { background: linear-gradient(to right, #1a9fff, #1a43c0); }
+.sdb-split__seg--win { background: linear-gradient(to right, #3d4450, #23262e); }
+.sdb-bigval { font-family: var(--steam-font-mono); font-size: 40px; font-weight: 800; color: #fff; }
+.sdb-range { width: 100%; accent-color: var(--steam-accent); height: 28px; }
+
+/* ---- Partition diff table ------------------------------------------------- */
+.sdb-diff { display: grid; grid-template-columns: 1fr 1fr; gap: var(--steam-space-5); }
+.sdb-parts { list-style: none; margin: 0; padding: 0; }
+.sdb-part {
+  display: flex; align-items: center; gap: var(--steam-space-3);
+  padding: 10px 12px; border-radius: var(--steam-radius-sm);
+  background: rgba(255,255,255,.02); margin-bottom: 6px;
+  font-size: var(--steam-fs-small);
+}
+.sdb-part--added { background: rgba(26,159,255,.12); box-shadow: inset 0 0 0 1px rgba(26,159,255,.4); }
+.sdb-part--shrunk { box-shadow: inset 0 0 0 1px rgba(222,54,24,.35); }
+.sdb-part__n { font-family: var(--steam-font-mono); color: var(--steam-text-muted); width: 28px; }
+.sdb-part__role { flex: 1; color: var(--steam-text-bright); }
+.sdb-part__size { font-family: var(--steam-font-mono); color: var(--steam-text-secondary); }
+
+/* ---- Progress / execute --------------------------------------------------- */
+.sdb-exec-steps { list-style: none; margin: var(--steam-space-5) 0; padding: 0; }
+.sdb-exec-step { display: flex; align-items: center; gap: var(--steam-space-3);
+  padding: 8px 0; color: var(--steam-text-muted); }
+.sdb-exec-step--running { color: var(--steam-text-white); }
+.sdb-exec-step--done { color: var(--steam-text-secondary); }
+.sdb-exec-step__mark { width: 22px; height: 22px; border-radius: 50%; flex: none;
+  display: grid; place-items: center; font-size: 12px;
+  background: var(--steam-surface-4); color: var(--steam-text-secondary); }
+.sdb-exec-step--done .sdb-exec-step__mark { background: #01a75c; color: #fff; }
+.sdb-exec-step--running .sdb-exec-step__mark { background: var(--steam-accent); color: #fff; }
+.sdb-log { font-family: var(--steam-font-mono); font-size: 12px; color: var(--steam-text-muted);
+  background: #000; border-radius: var(--steam-radius-sm); padding: 12px 14px; height: 132px;
+  overflow: auto; white-space: pre-wrap; }
+
+/* ---- Confirm gate --------------------------------------------------------- */
+.sdb-danger {
+  border: 1px solid rgba(222,54,24,.5); background: rgba(222,54,24,.08);
+  border-radius: var(--steam-radius-md); padding: var(--steam-space-5); margin: var(--steam-space-5) 0;
+}
+.sdb-confirm-input {
+  font-family: var(--steam-font-mono); font-size: var(--steam-fs-h3); letter-spacing: 3px;
+  background: var(--steam-surface-0); color: #fff; border: 1px solid var(--steam-surface-4);
+  border-radius: var(--steam-radius-sm); padding: 10px 14px; width: 220px; text-align: center;
+}
+.sdb-confirm-input:focus { outline: none; border-color: var(--steam-accent); }
+
+/* ---- Footer glyph hint bar ------------------------------------------------ */
+.sdb-footer {
+  position: fixed; bottom: 0; left: 0; right: 0; height: 56px;
+  display: flex; align-items: center; gap: var(--steam-space-6);
+  padding: 0 var(--steam-space-8);
+  background: rgba(14,16,19,.85); backdrop-filter: blur(8px);
+  border-top: 1px solid rgba(255,255,255,.05);
+}
+.sdb-footer__spacer { flex: 1; }
+.sdb-hint { display: inline-flex; align-items: center; gap: 8px; color: var(--steam-text-secondary);
+  font-size: var(--steam-fs-small); }
+
+/* ---- Misc ----------------------------------------------------------------- */
+.sdb-row { display: flex; gap: var(--steam-space-3); align-items: center; }
+.sdb-spread { display: flex; align-items: center; justify-content: space-between; }
+.sdb-actions { display: flex; gap: var(--steam-space-3); margin-top: var(--steam-space-6); }
+.sdb-stat { display: flex; flex-direction: column; gap: 2px; }
+.sdb-stat__v { font-family: var(--steam-font-mono); font-size: var(--steam-fs-h2); color: #fff; font-weight: 700; }
+.sdb-stat__k { font-size: var(--steam-fs-tiny); color: var(--steam-text-muted); text-transform: uppercase; letter-spacing: 1px; }

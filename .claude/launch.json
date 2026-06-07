@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "app",
+      "runtimeExecutable": "/home/mathias/.nvm/versions/node/v22.14.0/bin/node",
+      "runtimeArgs": ["node_modules/vite/bin/vite.js", "--port", "1420", "--strictPort"],
+      "port": 1420,
+      "cwd": "app"
+    }
+  ]
+}

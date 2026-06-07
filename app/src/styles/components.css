@@ -1,0 +1,197 @@
+/* =============================================================================
+   Steam Big Picture — Components
+   Original CSS implementing the Steam Deck UI / Big Picture design language
+   using the tokens in tokens.css. Class names use a `.bpm-` prefix and mirror
+   the SEMANTIC names Steam uses internally (DialogButton, Focusable, BarButton,
+   capsule, gpfocus) so the vocabulary maps cleanly onto the real client.
+   ============================================================================= */
+
+/* ---- Focusable: the universal BPM interaction primitive --------------------
+   In the real client EVERY navigable element carries `.Focusable`; the focused
+   one gets `.gpfocus`. Focus is shown by the component's own treatment (buttons
+   and rows invert to white) plus a restrained scale — NO drop-shadow halo on
+   these controls. FOCUS-ONLY, never on hover. */
+.bpm-focusable {
+  outline: none;
+  transition: transform var(--steam-dur) var(--steam-ease),
+              background var(--steam-dur) var(--steam-ease),
+              color     var(--steam-dur) var(--steam-ease);
+}
+.bpm-focusable:focus-visible,
+.bpm-focusable.gpfocus {            /* .gpfocus = Steam's "gamepad focus" class */
+  transform: scale(var(--steam-focus-scale));
+  z-index: 12;
+  position: relative;
+}
+/* Big surfaces (hero, cards) should NOT scale — a quiet inset edge marks focus. */
+.bpm-no-scale:focus-visible,
+.bpm-no-scale.gpfocus {
+  transform: none;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.55);
+}
+
+/* ---- Buttons (Steam: .DialogButton) ---------------------------------------
+   Variants mirror Steam: default, .Primary, .Destructive, .BarButton.
+   Key behaviour: a focused gamepad button INVERTS to white bg / dark text. */
+.bpm-button {
+  font-family: var(--steam-font);
+  font-size: var(--steam-fs-body);
+  font-weight: var(--steam-weight-medium);
+  letter-spacing: 0.5px;
+  padding: 10px 22px;
+  border: none;
+  border-radius: var(--steam-radius-sm);
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--steam-text-bright);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--steam-space-2);
+}
+.bpm-button:hover { background: rgba(255, 255, 255, 0.16); color: #fff; }
+/* focused (gamepad) default button -> white surface, dark text */
+.bpm-button:focus-visible,
+.bpm-button.gpfocus { background: #fff; color: #23262e; }
+
+.bpm-button--primary { background: var(--steam-accent); color: #fff; }
+.bpm-button--primary:focus-visible,
+.bpm-button--primary.gpfocus { background: #1a9fff; color: #fff; filter: brightness(1.15); }
+
+.bpm-button--play   { background: var(--steam-grad-play);   color: #fff; }
+.bpm-button--action { background: var(--steam-grad-action); color: #fff; }
+
+.bpm-button--destructive { background: var(--steam-destructive); color: #fff; }
+
+/* BarButton: the translucent pill used in top nav bars */
+.bpm-button--bar {
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: var(--steam-radius-pill);
+  padding: 9px 18px;
+}
+.bpm-button--bar:focus-visible,
+.bpm-button--bar.gpfocus { background: #fff; color: #000; }
+
+.bpm-button--glyph {
+  padding: 9px;
+  width: 40px; height: 40px;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+/* ---- Glyph chip (A/B/X/Y controller hint) --------------------------------- */
+.bpm-glyph {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--steam-fs-tiny);
+  font-weight: var(--steam-weight-bold);
+  color: #fff;
+}
+.bpm-glyph--a { background: #5ba32b; }  /* green  */
+.bpm-glyph--b { background: #c0392b; }  /* red    */
+.bpm-glyph--x { background: #2d7fc1; }  /* blue   */
+.bpm-glyph--y { background: #d4a017; }  /* yellow */
+
+/* ---- Card / panel (Steam: dialog body, settings panel) -------------------- */
+.bpm-card {
+  background: var(--steam-surface-3);
+  border-radius: var(--steam-radius-lg);
+  padding: var(--steam-space-6);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* ---- Field row (Steam: .Field — used throughout Settings) ----------------- */
+.bpm-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--steam-space-4);
+  padding: 14px var(--steam-space-5);
+  border-radius: var(--steam-radius-md);
+  background: rgba(255, 255, 255, 0.02);
+}
+.bpm-field:focus-visible,
+.bpm-field.gpfocus { background: #fff; color: #23262e; }
+.bpm-field:focus-visible .bpm-field__desc,
+.bpm-field.gpfocus .bpm-field__desc { color: #67707b; }
+.bpm-field__label { font-size: var(--steam-fs-body); font-weight: var(--steam-weight-medium); }
+.bpm-field__desc  { font-size: var(--steam-fs-small); color: var(--steam-text-secondary); margin-top: 2px; }
+
+/* ---- Toggle switch -------------------------------------------------------- */
+.bpm-toggle {
+  --w: 48px; --h: 26px;
+  width: var(--w); height: var(--h);
+  border-radius: var(--steam-radius-pill);
+  background: var(--steam-surface-4);
+  position: relative; flex: none; cursor: pointer; border: 0;
+  transition: background var(--steam-dur) var(--steam-ease);
+}
+.bpm-toggle[aria-checked="true"] { background: var(--steam-accent); }
+.bpm-toggle::after {
+  content: ""; position: absolute; top: 3px; left: 3px;
+  width: 20px; height: 20px; border-radius: 50%; background: #fff;
+  transition: transform var(--steam-dur) var(--steam-ease);
+}
+.bpm-toggle[aria-checked="true"]::after { transform: translateX(22px); }
+
+/* ---- Slider --------------------------------------------------------------- */
+.bpm-slider { position: relative; height: 6px; border-radius: 3px; background: var(--steam-surface-4); }
+.bpm-slider__fill { position: absolute; inset: 0 auto 0 0; border-radius: 3px; background: var(--steam-accent); }
+.bpm-slider__handle {
+  position: absolute; top: 50%; width: 18px; height: 18px; border-radius: 50%;
+  background: #fff; transform: translate(-50%, -50%); box-shadow: 0 1px 4px rgba(0,0,0,.5);
+}
+
+/* ---- Progress bar (Steam: --color-progress-bar-foreground:#1a9fff) --------- */
+.bpm-progress { height: 4px; border-radius: 2px; background: #000; overflow: hidden; }
+.bpm-progress__fill { height: 100%; background: var(--steam-accent); }
+
+/* ---- Top-nav tab (Steam BP header: flat text labels, no pills) ------------
+   The header is a row of plain text sections. The active one is bright white
+   with a soft glowing underline; the keyboard-focused one gets the authentic
+   gpfocus white pill. No persistent pill backgrounds. */
+.bpm-navtab {
+  background: transparent; border: 0; cursor: pointer;
+  font-family: var(--steam-font); font-size: var(--steam-fs-h3);
+  font-weight: var(--steam-weight-medium); letter-spacing: 0.4px;
+  color: var(--steam-text-secondary);
+  padding: 8px 14px; border-radius: var(--steam-radius-sm);
+  position: relative;
+}
+.bpm-navtab[aria-selected="true"] { color: #fff; }
+.bpm-navtab[aria-selected="true"]::after {
+  content: ""; position: absolute; left: 14px; right: 14px; bottom: 0; height: 2px;
+  border-radius: 2px; background: var(--steam-accent);
+  box-shadow: 0 0 8px 0 var(--steam-glow-color);     /* soft glow, not a hard line */
+}
+/* keyboard focus -> authentic white pill, dark text */
+.bpm-navtab:focus-visible, .bpm-navtab.gpfocus { color: #23262e; background: #fff; }
+.bpm-navtab:focus-visible::after, .bpm-navtab.gpfocus::after { display: none; }
+
+/* ---- Content tab (sub-navigation inside a page) --------------------------- */
+.bpm-tab {
+  background: transparent; border: 0; color: var(--steam-text-secondary);
+  font-family: var(--steam-font); font-size: var(--steam-fs-h3);
+  font-weight: var(--steam-weight-medium); padding: 8px 14px; cursor: pointer;
+  border-radius: var(--steam-radius-sm); position: relative;
+}
+.bpm-tab[aria-selected="true"] { color: #fff; }
+.bpm-tab[aria-selected="true"]::after {
+  content: ""; position: absolute; left: 14px; right: 14px; bottom: -2px; height: 2px;
+  border-radius: 2px; background: var(--steam-accent); box-shadow: 0 0 8px 0 var(--steam-glow-color);
+}
+.bpm-tab:focus-visible, .bpm-tab.gpfocus { color: #23262e; background: #fff; }
+.bpm-tab:focus-visible::after, .bpm-tab.gpfocus::after { display: none; }
+
+/* ---- Badge / pill --------------------------------------------------------- */
+.bpm-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: var(--steam-fs-tiny); font-weight: var(--steam-weight-bold);
+  text-transform: uppercase; letter-spacing: 0.5px;
+  padding: 3px 8px; border-radius: var(--steam-radius-xs);
+  background: var(--steam-surface-4); color: var(--steam-text-bright);
+}
+.bpm-badge--online { background: rgba(102,192,244,.18); color: var(--steam-online); }
+.bpm-badge--new    { background: var(--steam-accent); color: #fff; }

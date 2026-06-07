@@ -1,0 +1,103 @@
+/* =============================================================================
+   Steam Big Picture — App shell & showcase layout
+   ============================================================================= */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: var(--steam-font);
+  font-size: var(--steam-fs-body);
+  color: var(--steam-text-default);
+  /* Authentic BP backdrop: neutral near-black charcoal, faintly lighter at the
+     top. Verbatim tone from the client: linear-gradient(0deg,#191A1E,#212328).
+     No blue saturation. */
+  background: linear-gradient(0deg, #191a1e 0%, #191a1e 58%, #212328 100%) fixed;
+  -webkit-font-smoothing: antialiased;
+}
+
+.bpm-app { min-height: 100%; display: flex; flex-direction: column; }
+
+/* ---- Top navigation bar --------------------------------------------------- */
+.bpm-nav {
+  height: var(--steam-nav-height);
+  display: flex; align-items: center; gap: var(--steam-space-3);
+  padding: 0 var(--steam-space-8);
+  background: linear-gradient(to bottom, rgba(0,0,0,.55), rgba(0,0,0,0));
+  position: sticky; top: 0; z-index: 50;
+}
+.bpm-nav__brand {
+  display: flex; align-items: center; gap: var(--steam-space-3);
+  font-weight: var(--steam-weight-black); font-size: var(--steam-fs-h3);
+  letter-spacing: 1px; color: #fff; margin-right: var(--steam-space-6);
+}
+.bpm-nav__logo {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #1a9fff, #0a3a66 70%);
+  display: grid; place-items: center; color: #fff; font-weight: 900;
+}
+.bpm-nav__spacer { flex: 1; }
+.bpm-nav__clock {
+  font-variant-numeric: tabular-nums; color: var(--steam-text-bright);
+  font-size: var(--steam-fs-h3); font-weight: var(--steam-weight-light);
+}
+
+/* ---- Page content --------------------------------------------------------- */
+.bpm-main {
+  flex: 1;
+  width: 100%; max-width: var(--steam-content-max);
+  margin: 0 auto; padding: var(--steam-space-8) var(--steam-space-8) var(--steam-space-12);
+}
+
+.bpm-section { margin-bottom: var(--steam-space-12); }
+.bpm-section__head {
+  display: flex; align-items: baseline; gap: var(--steam-space-4);
+  margin-bottom: var(--steam-space-5);
+}
+.bpm-section__title {
+  font-size: var(--steam-fs-h2); font-weight: var(--steam-weight-bold);
+  color: #fff; margin: 0; letter-spacing: 0.3px;
+}
+.bpm-section__hint { font-size: var(--steam-fs-small); color: var(--steam-text-muted); }
+
+/* ---- Hero ----------------------------------------------------------------- */
+.bpm-hero {
+  position: relative; border-radius: var(--steam-radius-xl); overflow: hidden;
+  padding: var(--steam-space-12) var(--steam-space-8);
+  min-height: 320px; display: flex; flex-direction: column; justify-content: flex-end;
+  /* Neutral dark placeholder where real game hero art would sit. The bottom
+     scrim keeps title/buttons legible — same technique the client uses. */
+  background:
+    linear-gradient(to top, rgba(14,16,19,.96) 0%, rgba(14,16,19,.25) 55%, rgba(14,16,19,.55) 100%),
+    linear-gradient(160deg, #2c2f36 0%, #1b1d22 60%, #141519 100%);
+}
+.bpm-hero__eyebrow { color: var(--steam-accent-bright); font-weight: var(--steam-weight-bold);
+  letter-spacing: 2px; text-transform: uppercase; font-size: var(--steam-fs-tiny); }
+.bpm-hero__title { font-size: var(--steam-fs-hero); font-weight: var(--steam-weight-black);
+  color: #fff; margin: 8px 0 12px; max-width: 18ch; line-height: 1.05; }
+.bpm-hero__meta { display: flex; gap: var(--steam-space-3); align-items: center;
+  color: var(--steam-text-secondary); margin-bottom: var(--steam-space-5); }
+.bpm-hero__actions { display: flex; gap: var(--steam-space-3); }
+
+/* ---- Generic grids -------------------------------------------------------- */
+.bpm-grid { display: grid; gap: var(--steam-space-4); }
+.bpm-grid--swatches { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+.bpm-grid--cards    { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+.bpm-row { display: flex; flex-wrap: wrap; gap: var(--steam-space-3); align-items: center; }
+.bpm-stack > * + * { margin-top: var(--steam-space-3); }
+
+/* ---- Color swatch (for the token reference) ------------------------------- */
+.bpm-swatch { border-radius: var(--steam-radius-md); overflow: hidden; background: var(--steam-surface-3); }
+.bpm-swatch__chip { height: 72px; }
+.bpm-swatch__meta { padding: 10px 12px; }
+.bpm-swatch__name { font-size: var(--steam-fs-small); color: var(--steam-text-bright); font-weight: 600; }
+.bpm-swatch__hex  { font-family: var(--steam-font-mono); font-size: var(--steam-fs-tiny);
+  color: var(--steam-text-muted); }
+
+/* ---- Misc helpers --------------------------------------------------------- */
+.bpm-muted { color: var(--steam-text-muted); }
+.bpm-mono  { font-family: var(--steam-font-mono); }
+.bpm-divider { height: 1px; background: rgba(255,255,255,.06); margin: var(--steam-space-6) 0; }
+code.bpm-inline { font-family: var(--steam-font-mono); font-size: 12px;
+  background: rgba(0,0,0,.4); padding: 2px 6px; border-radius: 3px; color: var(--steam-accent-bright); }

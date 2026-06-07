@@ -1,0 +1,3 @@
+# Default to the UEFI target so `cargo build` in this crate produces an .efi PE binary.
+[build]
+target = "x86_64-unknown-uefi"

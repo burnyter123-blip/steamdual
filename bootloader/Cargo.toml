@@ -1,0 +1,33 @@
+[package]
+name = "steamdualboot-bootloader"
+version = "0.1.0"
+edition = "2021"
+description = "Steam Big Picture-styled UEFI boot picker for SteamOS / Windows dual-boot on the Steam Deck"
+
+[[bin]]
+name = "steamdualboot"
+path = "src/main.rs"
+
+[dependencies]
+# UEFI runtime: allocator, logger and panic handler come from the `helpers` feature set.
+uefi = { version = "0.37", features = ["alloc", "global_allocator", "logger", "panic_handler"] }
+log = "0.4"
+libm = "0.2"
+# Pre-rasterized, no_std bitmap glyphs (anti-aliased coverage maps) for clean BP text.
+noto-sans-mono-bitmap = { version = "0.3", default-features = false, features = [
+    "regular", "bold",
+    "size_20", "size_24", "size_32",
+    "unicode-basic-latin",
+] }
+
+[build-dependencies]
+# Host-side (std) PNG decode + downscale of the logo assets into raw BGRA blobs.
+image = { version = "0.25", default-features = false, features = ["png"] }
+
+[profile.release]
+opt-level = "s"
+lto = true
+panic = "abort"
+
+[profile.dev]
+panic = "abort"

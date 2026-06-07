@@ -1,0 +1,115 @@
+/* =============================================================================
+   Steam Big Picture / Steam Deck UI — Design Tokens
+   -----------------------------------------------------------------------------
+   Values reverse-engineered from the local Steam client's compiled stylesheet
+   (steamui/css/chunk~2dcc5aaf7.css). Token NAMES below are our own semantic
+   names chosen for clarity; the right-hand values are the real Steam values.
+   Where Steam ships an internal CSS variable name, it is noted in a comment so
+   another tool/AI can map back to the source design system.
+   ============================================================================= */
+
+:root {
+  /* ---------------------------------------------------------------------------
+     COLOR — Surfaces (the dark "blue-black" grayscale ramp)
+     Ordered deepest -> lightest. These are the backbone of every panel.
+     Usage frequency in source CSS noted to show load-bearing tokens.
+     --------------------------------------------------------------------------- */
+  --steam-surface-0:        #0e141b; /* deepest panel / dialog body      (453x) */
+  --steam-surface-1:        #171d25; /* app background base              ( 15x) */
+  --steam-surface-2:        #1b2838; /* classic store blue surface       (  5x) */
+  --steam-surface-3:        #23262e; /* standard panel / card            (1089x) */
+  --steam-surface-4:        #3d4450; /* raised surface / hairline border (1234x) */
+
+  /* COLOR — Text / foreground ramp (muted -> bright) */
+  --steam-text-muted:       #67707b; /* disabled / tertiary              (779x) */
+  --steam-text-secondary:   #8b929a; /* secondary body text  (most used 1590x) */
+  --steam-text-default:     #b8bcbf; /* default body text                (307x) */
+  --steam-text-bright:      #dcdedf; /* high-emphasis text               (227x) */
+  --steam-text-white:       #ffffff; /* headings / focused label               */
+
+  /* COLOR — Accents
+     #1a9fff is THE Steam accent (240 uses). Everything actionable trends blue. */
+  --steam-accent:           #1a9fff; /* primary action / progress fill   (240x) */
+  --steam-accent-bright:    #47bfff; /* lighter blue, gradient start      (20x) */
+  --steam-accent-deep:      #1a43c0; /* blue gradient end                       */
+  --steam-online:           #66c0f4; /* "online"/link light blue (legacy store)*/
+  --steam-destructive:      #de3618; /* destructive button / error             */
+
+  /* COLOR — Signature gradients (real values from source) */
+  --steam-grad-play:    linear-gradient(to right, #70d61d 0%, #01a75c 160%); /* green "Play"/Launch CTA */
+  --steam-grad-action:  linear-gradient(to right, #47bfff 0%, #1a43c0 160%); /* blue Install/Download CTA */
+
+  /* ---------------------------------------------------------------------------
+     TYPOGRAPHY
+     Steam's brand face is "Motiva Sans" (weights 100-900), shipped as a
+     proprietary .uifont and therefore NOT redistributed here. The exact
+     fallback stack the client uses is kept so dropping the real font in works.
+     --------------------------------------------------------------------------- */
+  --steam-font:       "Motiva Sans", Arial, Helvetica, sans-serif;
+  --steam-font-mono:  "Roboto Mono", "Consolas", "Lucida Console", monospace;
+
+  --steam-weight-thin:      100;
+  --steam-weight-light:     300;
+  --steam-weight-regular:   400;
+  --steam-weight-medium:    500;
+  --steam-weight-bold:      700;
+  --steam-weight-black:     900;
+
+  /* Type scale (px values pulled from common Steam BPM usage) */
+  --steam-fs-hero:    48px;  /* clock / hero numerals (--clock-font-size) */
+  --steam-fs-h1:      32px;
+  --steam-fs-h2:      24px;
+  --steam-fs-h3:      18px;
+  --steam-fs-body:    15px;
+  --steam-fs-small:   13px;
+  --steam-fs-tiny:    11px;
+
+  /* ---------------------------------------------------------------------------
+     SHAPE — radii (frequency-ranked from source)
+     --------------------------------------------------------------------------- */
+  --steam-radius-xs:   2px;  /* inputs, small chips        (306x) */
+  --steam-radius-sm:   3px;  /* buttons                    (192x) */
+  --steam-radius-md:   4px;  /* cards / capsules           (128x) */
+  --steam-radius-lg:   8px;  /* panels / tiles             (104x) */
+  --steam-radius-xl:   10px; /* large feature tiles        (102x) */
+  --steam-radius-pill: 22px; /* fully-rounded pills/keys   (148x) */
+
+  /* ---------------------------------------------------------------------------
+     SPACING — Steam leans on an 4/8 base grid
+     --------------------------------------------------------------------------- */
+  --steam-space-1:  4px;
+  --steam-space-2:  8px;
+  --steam-space-3:  12px;
+  --steam-space-4:  16px;
+  --steam-space-5:  20px;
+  --steam-space-6:  24px;
+  --steam-space-8:  32px;
+  --steam-space-12: 48px;
+
+  /* ---------------------------------------------------------------------------
+     LAYOUT
+     --------------------------------------------------------------------------- */
+  --steam-content-max:    1100px; /* --gamepad-page-content-max-width */
+  --steam-capsule-w:      320px;  /* --capsule-width (vertical 2:3 capsule) */
+  --steam-nav-height:     64px;
+
+  /* ---------------------------------------------------------------------------
+     MOTION & FOCUS — the heart of the Big Picture feel.
+     IMPORTANT: gamepad focus (`.gpfocus`) is NOT a big dark drop-shadow lift —
+     that is the DESKTOP mouse style (`.Focusable:focus`). Real Big Picture focus is:
+       - buttons / list rows: invert to white surface, dark text
+         (`.gpfocus img { filter: brightness(0) }`)
+       - a restrained scale (1.05-1.1)
+     It is FOCUS-ONLY, never hover. The blue drop-shadow glow below is reserved
+     for LARGE library tiles in the real client — we do NOT apply it to ordinary
+     controls (it reads as a "weird halo" on buttons), but keep it documented.
+     --------------------------------------------------------------------------- */
+  --steam-ease:           cubic-bezier(0.17, 0.45, 0.14, 0.83); /* gpfocuswithin curve */
+  --steam-dur:            0.32s;                                 /* gpfocuswithin duration */
+
+  --steam-focus-scale:    1.05;                  /* tiles range 1.05-1.1 in source */
+  --steam-glow-color:     #199fff;               /* the BP focus glow blue (active tab underline) */
+
+  /* Reference-only: the source's large-tile glow. Not applied to controls here. */
+  --steam-focus-glow:     drop-shadow(0 0 10px rgba(26, 159, 255, 0.5647058824));
+}

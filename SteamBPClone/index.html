@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Steam Big Picture — Design Language Reference</title>
+<!--
+  A reference implementation of the Steam Big Picture / Steam Deck UI design
+  language. Tokens and values reverse-engineered from the local Steam client
+  (steamui/css). Built as a single navigable page that doubles as a component
+  library. Use arrow keys / Tab to move focus and feel the "Focusable" lift.
+  See DESIGN_LANGUAGE.md for the full spec and naming map.
+-->
+<link rel="stylesheet" href="styles/tokens.css" />
+<link rel="stylesheet" href="styles/app.css" />
+<link rel="stylesheet" href="styles/components.css" />
+</head>
+<body>
+<div class="bpm-app">
+
+  <!-- ============ TOP NAV (flat section tabs, no pills) ============ -->
+  <nav class="bpm-nav">
+    <div class="bpm-nav__brand">
+      <span class="bpm-nav__logo">S</span> BIG&nbsp;PICTURE
+    </div>
+    <button class="bpm-navtab bpm-focusable" aria-selected="false">Store</button>
+    <button class="bpm-navtab bpm-focusable" aria-selected="true">Library</button>
+    <button class="bpm-navtab bpm-focusable" aria-selected="false">Community</button>
+    <span class="bpm-nav__spacer"></span>
+    <span class="bpm-nav__clock" id="clock">12:48</span>
+    <button class="bpm-navtab bpm-focusable" title="Profile" style="padding:8px 12px;">M</button>
+  </nav>
+
+  <main class="bpm-main">
+
+    <!-- ============ HERO ============ -->
+    <section class="bpm-section">
+      <div class="bpm-hero bpm-card bpm-focusable bpm-no-scale" tabindex="0" style="border:0;">
+        <span class="bpm-hero__eyebrow">Continue Playing</span>
+        <h1 class="bpm-hero__title">Nebula Drifters</h1>
+        <div class="bpm-hero__meta">
+          <span class="bpm-badge bpm-badge--online">● Online</span>
+          <span>Last played 2 hours ago</span>
+          <span>·</span><span>34 hrs total</span>
+        </div>
+        <div class="bpm-hero__actions">
+          <button class="bpm-button bpm-button--play bpm-focusable">▶ Play</button>
+          <button class="bpm-button bpm-focusable">Achievements</button>
+          <button class="bpm-button bpm-focusable">Store Page</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ BUTTONS ============ -->
+    <section class="bpm-section">
+      <div class="bpm-section__head">
+        <h2 class="bpm-section__title">Buttons</h2>
+        <span class="bpm-section__hint">Steam class: <code class="bpm-inline">.DialogButton</code> + variants</span>
+      </div>
+      <div class="bpm-row">
+        <button class="bpm-button bpm-focusable">Default</button>
+        <button class="bpm-button bpm-button--primary bpm-focusable">Primary</button>
+        <button class="bpm-button bpm-button--play bpm-focusable">▶ Play</button>
+        <button class="bpm-button bpm-button--action bpm-focusable">⤓ Install</button>
+        <button class="bpm-button bpm-button--destructive bpm-focusable">Uninstall</button>
+        <button class="bpm-button bpm-button--bar bpm-focusable">BarButton</button>
+        <button class="bpm-button bpm-button--glyph bpm-focusable">✕</button>
+      </div>
+      <p class="bpm-muted" style="margin-top:12px;font-size:13px;">
+        Focus any button (Tab / arrow keys): default buttons invert to a white surface with dark
+        text — the signature gamepad-focus behaviour (<code class="bpm-inline">.gpfocus</code>).
+      </p>
+    </section>
+
+    <!-- ============ CONTROLS ============ -->
+    <section class="bpm-section">
+      <div class="bpm-section__head">
+        <h2 class="bpm-section__title">Settings Controls</h2>
+        <span class="bpm-section__hint">Steam class: <code class="bpm-inline">.Field</code></span>
+      </div>
+      <div class="bpm-card" style="padding:8px;">
+        <div class="bpm-field bpm-focusable" tabindex="0">
+          <div>
+            <div class="bpm-field__label">Enable Game Recording</div>
+            <div class="bpm-field__desc">Capture background footage while you play</div>
+          </div>
+          <button class="bpm-toggle" role="switch" aria-checked="true" aria-label="toggle"></button>
+        </div>
+        <div class="bpm-field bpm-focusable" tabindex="0">
+          <div>
+            <div class="bpm-field__label">Master Volume</div>
+            <div class="bpm-field__desc">System-wide audio level</div>
+          </div>
+          <div class="bpm-slider" style="width:220px;">
+            <div class="bpm-slider__fill" style="width:68%;"></div>
+            <div class="bpm-slider__handle" style="left:68%;"></div>
+          </div>
+        </div>
+        <div class="bpm-field bpm-focusable" tabindex="0">
+          <div>
+            <div class="bpm-field__label">Update Behaviour</div>
+            <div class="bpm-field__desc">Keep games up to date automatically</div>
+          </div>
+          <button class="bpm-toggle" role="switch" aria-checked="false" aria-label="toggle"></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ TABS + PROGRESS + BADGES ============ -->
+    <section class="bpm-section">
+      <div class="bpm-section__head"><h2 class="bpm-section__title">Tabs, Progress &amp; Badges</h2></div>
+      <div class="bpm-row" style="gap:24px;">
+        <button class="bpm-tab bpm-focusable" aria-selected="true">All</button>
+        <button class="bpm-tab bpm-focusable" aria-selected="false">Installed</button>
+        <button class="bpm-tab bpm-focusable" aria-selected="false">Favourites</button>
+      </div>
+      <div class="bpm-divider"></div>
+      <div style="max-width:420px;">
+        <div class="bpm-row" style="justify-content:space-between;font-size:13px;">
+          <span class="bpm-muted">Downloading — Nebula Drifters</span><span class="bpm-mono">62%</span>
+        </div>
+        <div class="bpm-progress" style="margin-top:8px;"><div class="bpm-progress__fill" style="width:62%;"></div></div>
+      </div>
+      <div class="bpm-row" style="margin-top:20px;">
+        <span class="bpm-badge">RPG</span>
+        <span class="bpm-badge bpm-badge--new">New</span>
+        <span class="bpm-badge bpm-badge--online">● Online</span>
+        <span class="bpm-badge">Controller Friendly</span>
+      </div>
+    </section>
+
+    <!-- ============ COLOR TOKENS ============ -->
+    <section class="bpm-section">
+      <div class="bpm-section__head">
+        <h2 class="bpm-section__title">Color Tokens</h2>
+        <span class="bpm-section__hint">extracted from <code class="bpm-inline">steamui/css</code></span>
+      </div>
+      <div class="bpm-grid bpm-grid--swatches" id="swatches"><!-- injected by app.js --></div>
+    </section>
+
+  </main>
+
+</div>
+<script src="app.js"></script>
+</body>
+</html>

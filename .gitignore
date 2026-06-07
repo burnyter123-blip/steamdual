@@ -1,0 +1,22 @@
+# Rust / Cargo
+target/
+**/target/
+
+# Node / Vite
+node_modules/
+app/dist/
+app/src-tauri/target/
+
+# Build / test artifacts
+*.ppm
+*.png.bak
+/target/esp/
+/target/OVMF_VARS.fd
+
+# Editor
+.idea/
+.vscode/
+.DS_Store
+
+# Asset blobs are fetched/generated; keep source PNGs, ignore derived
+bootloader/assets/*.bgra
