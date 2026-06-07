@@ -69,13 +69,6 @@ jobs:
         working-directory: bootloader
         run: cargo build --release
 
-      - name: Stage bootloader for packaging
-        run: |
-          # The engine installs this onto the ESP; expose its path to the build.
-          mkdir -p app/src-tauri/resources
-          cp bootloader/target/x86_64-unknown-uefi/release/steamdualboot.efi \
-             app/src-tauri/resources/steamdualboot.efi
-
       - name: Build AppImage
         working-directory: app
         run: npm run tauri build -- --bundles appimage
@@ -110,8 +103,8 @@ jobs:
           # Customizable per repo: Settings → Secrets and variables → Actions → Variables.
           INSTALL_DIR: ${{ vars.INSTALL_DIR || '$HOME/Applications' }}
         run: |
-          # `${{ }}` is expanded by Actions before the shell; the quoted heredoc
-          # keeps `$HOME` literal so it expands on the *user's* machine, not here.
+          # Actions expands its expressions before the shell runs; the quoted
+          # heredoc keeps $HOME literal so it expands on the user's machine.
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
           ## ✅ SteamDualBoot AppImage built — `${{ steps.collect.outputs.appimage }}`
 
