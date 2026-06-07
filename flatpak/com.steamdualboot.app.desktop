@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=SteamDualBoot
+GenericName=Dual-boot setup
+Comment=Add a Windows 11 dual-boot to your Steam Deck
+Exec=steamdualboot
+Icon=com.steamdualboot.app
+Terminal=false
+Categories=Utility;System;Settings;
+Keywords=windows;dualboot;steamdeck;boot;

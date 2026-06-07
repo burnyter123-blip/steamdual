@@ -1,0 +1,53 @@
+# Flatpak manifest for SteamDualBoot.
+#
+# Why Flatpak: SteamOS ships no system WebKitGTK, so the AppImage had to bundle
+# Ubuntu's, which can't initialize EGL on the Deck and aborts the WebProcess
+# (blank white window). The GNOME runtime provides a WebKitGTK built to work
+# with the host GPU, so the app actually renders. GNOME 46 is the runtime that
+# still ships webkit2gtk-4.1 (the GTK3 API Tauri v2 links).
+#
+# The binary is built *inside* the SDK (not prebuilt on CI) so it matches the
+# runtime's glibc. Network is allowed during the build (this is a CI artifact,
+# not an offline Flathub submission), so no dependency vendoring is needed.
+id: com.steamdualboot.app
+runtime: org.gnome.Platform
+runtime-version: '46'
+sdk: org.gnome.Sdk
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.rust-stable
+  - org.freedesktop.Sdk.Extension.node20
+command: steamdualboot
+
+finish-args:
+  - --socket=fallback-x11
+  - --socket=wayland
+  - --share=ipc
+  - --device=dri
+  # SteamDualBoot drives host disk/boot tooling (lsblk, parted, qemu,
+  # efibootmgr) via `flatpak-spawn --host`, and must see the real devices and
+  # the user-selected ISO on the host filesystem.
+  - --talk-name=org.freedesktop.Flatpak
+  - --filesystem=host
+  - --device=all
+  - --env=FLATPAK=1
+
+build-options:
+  append-path: /usr/lib/sdk/rust-stable/bin:/usr/lib/sdk/node20/bin
+  build-args:
+    - --share=network
+  env:
+    CARGO_HOME: /run/build/steamdualboot/cargo
+
+modules:
+  - name: steamdualboot
+    buildsystem: simple
+    build-commands:
+      - cd app && npm ci
+      - cd app && npm run tauri build -- --no-bundle
+      - install -Dm755 app/src-tauri/target/release/steamdualboot /app/bin/steamdualboot
+      - install -Dm644 flatpak/com.steamdualboot.app.desktop /app/share/applications/com.steamdualboot.app.desktop
+      - install -Dm644 app/src-tauri/icons/512x512.png /app/share/icons/hicolor/512x512/apps/com.steamdualboot.app.png
+      - install -Dm644 flatpak/com.steamdualboot.app.metainfo.xml /app/share/metainfo/com.steamdualboot.app.metainfo.xml
+    sources:
+      - type: dir
+        path: ..

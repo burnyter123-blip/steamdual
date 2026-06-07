@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>com.steamdualboot.app</id>
+  <metadata_license>MIT</metadata_license>
+  <project_license>MIT</project_license>
+  <name>SteamDualBoot</name>
+  <summary>Add a Windows 11 dual-boot to your Steam Deck</summary>
+  <description>
+    <p>
+      SteamDualBoot guides you through adding a Windows 11 dual-boot alongside
+      SteamOS — shrinking storage, creating partitions, installing Windows 11
+      unattended, and setting up a controller-friendly boot picker in the Steam
+      Big Picture style. It then becomes a configuration pane for the split and
+      the default OS.
+    </p>
+  </description>
+  <launchable type="desktop-id">com.steamdualboot.app.desktop</launchable>
+  <categories>
+    <category>Utility</category>
+    <category>System</category>
+  </categories>
+  <content_rating type="oars-1.1"/>
+  <releases>
+    <release version="0.1.0" date="2026-06-07"/>
+  </releases>
+</component>

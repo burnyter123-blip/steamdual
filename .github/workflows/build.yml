@@ -98,38 +98,90 @@ jobs:
           path: dist/steamdualboot.efi
           if-no-files-found: error
 
-      - name: Publish copy-paste install command
+  # ===========================================================================
+  # Flatpak — the build that actually runs on the Steam Deck. SteamOS ships no
+  # system WebKit, so the AppImage's bundled WebKit can't initialize EGL and the
+  # window stays blank; the GNOME-runtime WebKit in this Flatpak renders fine.
+  # ===========================================================================
+  flatpak:
+    name: Build Flatpak (Steam Deck)
+    runs-on: ubuntu-24.04
+    container:
+      # Prebuilt image with flatpak-builder + the GNOME 46 SDK (webkit2gtk-4.1).
+      image: bilelmoussaoui/flatpak-github-actions:gnome-46
+      options: --privileged
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Flatpak bundle
+        uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        with:
+          bundle: SteamDualBoot.flatpak
+          manifest-path: flatpak/com.steamdualboot.app.yml
+          cache-key: flatpak-${{ github.sha }}
+          # We upload under a fixed name below so the install command is stable.
+          upload-artifact: false
+
+      - name: Upload Flatpak artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SteamDualBoot-Flatpak
+          path: SteamDualBoot.flatpak
+          if-no-files-found: error
+
+  # ===========================================================================
+  # Publish copy-paste install commands (driven by repository variables) once
+  # both bundles exist.
+  # ===========================================================================
+  install-command:
+    name: Publish install commands
+    needs: [build, flatpak]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Write install commands to the run summary
         env:
           # Customizable per repo: Settings → Secrets and variables → Actions → Variables.
           INSTALL_DIR: ${{ vars.INSTALL_DIR || '$HOME/Applications' }}
         run: |
-          # Actions expands its expressions before the shell runs; the quoted
-          # heredoc keeps $HOME literal so it expands on the user's machine.
+          # Actions expands ${{ ... }} before the shell; the quoted heredoc keeps
+          # $HOME literal so it expands on the user's machine, not the runner.
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
-          ## ✅ SteamDualBoot AppImage built — `${{ steps.collect.outputs.appimage }}`
+          ## ✅ SteamDualBoot build `${{ github.sha }}`
 
-          **Copy-paste install** (needs the GitHub CLI [`gh`](https://cli.github.com), logged in with `gh auth login`):
+          ### Steam Deck — install the Flatpak (recommended)
+
+          The AppImage can't render on SteamOS (no system WebKit) — use the Flatpak.
+          Download the **SteamDualBoot-Flatpak** artifact from this run, then:
+
+          ```bash
+          flatpak install --user -y SteamDualBoot.flatpak && flatpak run com.steamdualboot.app
+          ```
+
+          Fetch + install in one go with the GitHub CLI ([`gh`](https://cli.github.com), after `gh auth login`):
+
+          ```bash
+          gh run download ${{ github.run_id }} --repo ${{ github.repository }} --name SteamDualBoot-Flatpak --dir /tmp/sdb \
+            && flatpak install --user -y /tmp/sdb/SteamDualBoot.flatpak \
+            && flatpak run com.steamdualboot.app
+          ```
+
+          Public repo without `gh` (tokenless via nightly.link):
+
+          ```bash
+          curl -L -o /tmp/sdb.zip "https://nightly.link/${{ github.repository }}/actions/runs/${{ github.run_id }}/SteamDualBoot-Flatpak.zip" \
+            && unzip -o /tmp/sdb.zip -d /tmp/sdb \
+            && flatpak install --user -y /tmp/sdb/SteamDualBoot.flatpak && flatpak run com.steamdualboot.app
+          ```
+
+          ### Desktop Linux — AppImage
 
           ```bash
           INSTALL_DIR="${{ vars.INSTALL_DIR || '$HOME/Applications' }}"
           mkdir -p "$INSTALL_DIR" \
-            && gh run download ${{ github.run_id }} --repo ${{ github.repository }} \
-                 --name ${{ env.ARTIFACT_NAME }} --dir "$INSTALL_DIR" \
-            && chmod +x "$INSTALL_DIR"/*.AppImage \
-            && echo "Installed to $INSTALL_DIR — launch SteamDualBoot from there."
+            && gh run download ${{ github.run_id }} --repo ${{ github.repository }} --name ${{ env.ARTIFACT_NAME }} --dir "$INSTALL_DIR" \
+            && chmod +x "$INSTALL_DIR"/*.AppImage
           ```
 
-          No `gh`? On a **public** repo you can download tokenless via nightly.link:
-
-          ```bash
-          curl -L -o steamdualboot.zip \
-            "https://nightly.link/${{ github.repository }}/actions/runs/${{ github.run_id }}/${{ env.ARTIFACT_NAME }}.zip" \
-            && unzip -o steamdualboot.zip -d "${{ vars.INSTALL_DIR || '$HOME/Applications' }}" \
-            && chmod +x "${{ vars.INSTALL_DIR || '$HOME/Applications' }}"/*.AppImage
-          ```
-
-          > Set the repository variable **`INSTALL_DIR`** to change the install location (default `$HOME/Applications`). Artifacts expire after 90 days.
+          > Set the repo variable **`INSTALL_DIR`** to change the AppImage location (default `$HOME/Applications`). Artifacts expire after 90 days.
           EOF
-          # Also echo to the job log for convenience.
-          echo "Install dir: $INSTALL_DIR"
-          echo "Artifact:    ${{ env.ARTIFACT_NAME }} (run ${{ github.run_id }})"
