@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Check, TriangleAlert, FolderOpen, ArrowLeft, ArrowRight } from "lucide-react";
 import { Engine } from "../lib/engine.js";
 
 export default function IsoStep({ iso, setIso, onNext, onBack }) {
@@ -36,7 +37,7 @@ export default function IsoStep({ iso, setIso, onNext, onBack }) {
             </div>
           </div>
           <button className="bpm-button bpm-focusable" onClick={pick} disabled={busy}>
-            {busy ? "Checking…" : "Browse…"}
+            <FolderOpen size={16} /> {busy ? "Checking…" : "Browse…"}
           </button>
         </div>
 
@@ -44,7 +45,7 @@ export default function IsoStep({ iso, setIso, onNext, onBack }) {
           <div style={{ marginTop: 16 }}>
             <div className={`sdb-check`}>
               <span className={`sdb-check__icon ${valid ? "sdb-check__icon--ok" : "sdb-check__icon--warn"}`}>
-                {valid ? "✓" : "!"}
+                {valid ? <Check size={16} strokeWidth={3} /> : <TriangleAlert size={15} strokeWidth={2.5} />}
               </span>
               <div style={{ flex: 1 }}>
                 <div className="sdb-check__label">
@@ -62,13 +63,15 @@ export default function IsoStep({ iso, setIso, onNext, onBack }) {
       </div>
 
       <div className="sdb-actions">
-        <button className="bpm-button bpm-focusable" onClick={onBack}>← Back</button>
+        <button className="bpm-button bpm-focusable" onClick={onBack}>
+          <ArrowLeft size={16} /> Back
+        </button>
         <button
           className="bpm-button bpm-button--primary bpm-focusable"
           disabled={!valid}
           onClick={onNext}
         >
-          Review →
+          Review <ArrowRight size={16} />
         </button>
       </div>
     </section>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { TriangleAlert, ArrowLeft, HardDrive } from "lucide-react";
 import { Engine } from "../lib/engine.js";
 import { gib } from "../lib/format.js";
 
@@ -16,6 +17,7 @@ function PartList({ title, parts }) {
               (p.role?.includes("shrunk") ? " sdb-part--shrunk" : "")
             }
           >
+            <HardDrive size={15} className="bpm-muted" />
             <span className="sdb-part__n">p{p.n}</span>
             <span className="sdb-part__role">
               {p.role} <span className="bpm-muted">· {p.fs}</span>
@@ -58,8 +60,8 @@ export default function ReviewStep({ windowsGib, iso, onConfirm, onBack }) {
 
       <div className="sdb-danger">
         <div className="sdb-row" style={{ gap: 10, marginBottom: 8 }}>
-          <span className="bpm-badge" style={{ background: "var(--steam-destructive)" }}>
-            IRREVERSIBLE
+          <span className="bpm-badge" style={{ background: "var(--steam-destructive)", gap: 5 }}>
+            <TriangleAlert size={12} strokeWidth={2.5} /> IRREVERSIBLE
           </span>
           <strong>Repartitioning can cause data loss if interrupted.</strong>
         </div>
@@ -80,7 +82,9 @@ export default function ReviewStep({ windowsGib, iso, onConfirm, onBack }) {
       </div>
 
       <div className="sdb-actions">
-        <button className="bpm-button bpm-focusable" onClick={onBack}>← Back</button>
+        <button className="bpm-button bpm-focusable" onClick={onBack}>
+          <ArrowLeft size={16} /> Back
+        </button>
         <button
           className="bpm-button bpm-button--destructive bpm-focusable"
           disabled={!armed}

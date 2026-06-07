@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Check, TriangleAlert, ArrowRight } from "lucide-react";
 import { Engine } from "../lib/engine.js";
 
 export default function Welcome({ onNext }) {
@@ -24,7 +25,7 @@ export default function Welcome({ onNext }) {
           pf.checks.map((c) => (
             <div className="sdb-check" key={c.id}>
               <span className={`sdb-check__icon ${c.ok ? "sdb-check__icon--ok" : "sdb-check__icon--warn"}`}>
-                {c.ok ? "✓" : "!"}
+                {c.ok ? <Check size={16} strokeWidth={3} /> : <TriangleAlert size={15} strokeWidth={2.5} />}
               </span>
               <div style={{ flex: 1 }}>
                 <div className="sdb-check__label">{c.label}</div>
@@ -40,7 +41,7 @@ export default function Welcome({ onNext }) {
           disabled={!pf || !pf.canProceed}
           onClick={onNext}
         >
-          Begin →
+          Begin <ArrowRight size={16} />
         </button>
       </div>
     </section>

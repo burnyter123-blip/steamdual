@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Wrench, Trash2 } from "lucide-react";
 import { Engine } from "../lib/engine.js";
 import { gib } from "../lib/format.js";
 
@@ -78,7 +79,7 @@ export default function ConfigPane() {
             <div className="bpm-field__desc">Re-assert the EFI entry if a SteamOS update changed it</div>
           </div>
           <button className="bpm-button bpm-focusable" onClick={() => Engine.repairBootloader()}>
-            Repair
+            <Wrench size={16} /> Repair
           </button>
         </div>
         <div className="bpm-field bpm-focusable" tabIndex={0}>
@@ -87,7 +88,7 @@ export default function ConfigPane() {
             <div className="bpm-field__desc">Delete Windows partitions and give the space back to SteamOS</div>
           </div>
           <button className="bpm-button bpm-button--destructive bpm-focusable" onClick={() => Engine.uninstall()}>
-            Uninstall
+            <Trash2 size={16} /> Uninstall
           </button>
         </div>
       </div>

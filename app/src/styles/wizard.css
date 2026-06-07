@@ -5,6 +5,13 @@
 
 .sdb-app { min-height: 100vh; display: flex; flex-direction: column; }
 
+/* Icons (lucide-react) sit inline with text and inherit currentColor. */
+.sdb-app svg { flex: none; }
+.sdb-spin { animation: sdb-spin 1s linear infinite; }
+@keyframes sdb-spin { to { transform: rotate(360deg); } }
+/* Helper for buttons that pair an icon with a label. */
+.bpm-button svg { vertical-align: -2px; }
+
 /* ---- Top bar (BP nav) ----------------------------------------------------- */
 .sdb-nav {
   height: var(--steam-nav-height);

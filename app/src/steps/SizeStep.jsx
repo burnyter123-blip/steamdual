@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Engine } from "../lib/engine.js";
 import { gib } from "../lib/format.js";
 
@@ -63,9 +64,11 @@ export default function SizeStep({ disk, setDisk, windowsGib, setWindowsGib, onN
       </div>
 
       <div className="sdb-actions">
-        <button className="bpm-button bpm-focusable" onClick={onBack}>← Back</button>
+        <button className="bpm-button bpm-focusable" onClick={onBack}>
+          <ArrowLeft size={16} /> Back
+        </button>
         <button className="bpm-button bpm-button--primary bpm-focusable" onClick={onNext}>
-          Choose ISO →
+          Choose ISO <ArrowRight size={16} />
         </button>
       </div>
     </section>

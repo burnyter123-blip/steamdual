@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Check, LoaderCircle } from "lucide-react";
 import { Engine, on } from "../lib/engine.js";
 
 const STEP_LABELS = [
@@ -64,7 +65,15 @@ export default function ExecuteStep({ windowsGib, iso, onDone }) {
               : i === curIndex
               ? "sdb-exec-step--running"
               : "";
-          const mark = i < curIndex || progress.status === "done" ? "✓" : i === curIndex ? "▶" : i + 1;
+          const done = i < curIndex || progress.status === "done";
+          const running = i === curIndex && progress.status !== "done";
+          const mark = done ? (
+            <Check size={14} strokeWidth={3} />
+          ) : running ? (
+            <LoaderCircle size={14} strokeWidth={2.5} className="sdb-spin" />
+          ) : (
+            i + 1
+          );
           return (
             <li className={`sdb-exec-step ${cls}`} key={id}>
               <span className="sdb-exec-step__mark">{mark}</span>

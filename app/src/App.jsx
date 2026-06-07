@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { ArrowRightLeft, Check } from "lucide-react";
 import { Engine, isMock } from "./lib/engine.js";
 import { useGamepadFocus } from "./hooks/useGamepadFocus.js";
 import Footer from "./components/Footer.jsx";
@@ -26,7 +27,9 @@ function Stepper({ index }) {
               (i < index ? " sdb-step-dot--done" : "")
             }
           >
-            <span className="sdb-step-dot__num">{i < index ? "✓" : i + 1}</span>
+            <span className="sdb-step-dot__num">
+              {i < index ? <Check size={14} strokeWidth={3} /> : i + 1}
+            </span>
             {i === index && <span>{label}</span>}
           </div>
         </div>
@@ -91,7 +94,8 @@ export default function App() {
     <div className="sdb-app">
       <nav className="sdb-nav">
         <div className="sdb-nav__brand">
-          <span className="sdb-nav__logo">⧉</span> STEAM&nbsp;DUALBOOT
+          <span className="sdb-nav__logo"><ArrowRightLeft size={18} strokeWidth={2.5} /></span>
+          STEAM&nbsp;DUALBOOT
         </div>
         <span className="sdb-nav__spacer" />
         {mode === "setup" && <Stepper index={step} />}
