@@ -1,0 +1,142 @@
+name: Build AppImage
+
+# Runs on every push (any branch) and on manual dispatch.
+on:
+  push:
+  workflow_dispatch:
+
+# A newer push to the same ref supersedes an in-flight build.
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # Name of the uploaded artifact — the copy-paste install command references it.
+  ARTIFACT_NAME: SteamDualBoot-AppImage
+  # Lets tauri's bundler run nested AppImages (linuxdeploy/appimagetool) without FUSE.
+  APPIMAGE_EXTRACT_AND_RUN: "1"
+
+jobs:
+  build:
+    # 24.04 ships webkit2gtk-4.1 / libsoup-3.0 that Tauri v2 needs.
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies (Tauri v2 + AppImage)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libjavascriptcoregtk-4.1-dev \
+            libsoup-3.0-dev \
+            libgtk-3-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            patchelf \
+            build-essential curl wget file
+          # FUSE for AppImage tooling (package was renamed on 24.04); non-fatal.
+          sudo apt-get install -y libfuse2t64 || sudo apt-get install -y libfuse2 || true
+
+      - name: Set up Rust (stable + UEFI target)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-unknown-uefi
+
+      - name: Cache Rust builds
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            bootloader
+            app/src-tauri
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: app
+        run: npm ci
+
+      - name: Build bootloader (.efi)
+        working-directory: bootloader
+        run: cargo build --release
+
+      - name: Stage bootloader for packaging
+        run: |
+          # The engine installs this onto the ESP; expose its path to the build.
+          mkdir -p app/src-tauri/resources
+          cp bootloader/target/x86_64-unknown-uefi/release/steamdualboot.efi \
+             app/src-tauri/resources/steamdualboot.efi
+
+      - name: Build AppImage
+        working-directory: app
+        run: npm run tauri build -- --bundles appimage
+
+      - name: Collect artifacts
+        id: collect
+        run: |
+          mkdir -p dist
+          APPIMAGE=$(find app/src-tauri/target/release/bundle/appimage -name '*.AppImage' | head -1)
+          if [ -z "$APPIMAGE" ]; then echo "AppImage not found" >&2; exit 1; fi
+          cp "$APPIMAGE" dist/
+          cp bootloader/target/x86_64-unknown-uefi/release/steamdualboot.efi dist/
+          echo "appimage=$(basename "$APPIMAGE")" >> "$GITHUB_OUTPUT"
+          ls -la dist/
+
+      - name: Upload AppImage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: dist/*.AppImage
+          if-no-files-found: error
+
+      - name: Upload bootloader artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SteamDualBoot-Bootloader
+          path: dist/steamdualboot.efi
+          if-no-files-found: error
+
+      - name: Publish copy-paste install command
+        env:
+          # Customizable per repo: Settings → Secrets and variables → Actions → Variables.
+          INSTALL_DIR: ${{ vars.INSTALL_DIR || '$HOME/Applications' }}
+        run: |
+          # `${{ }}` is expanded by Actions before the shell; the quoted heredoc
+          # keeps `$HOME` literal so it expands on the *user's* machine, not here.
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## ✅ SteamDualBoot AppImage built — `${{ steps.collect.outputs.appimage }}`
+
+          **Copy-paste install** (needs the GitHub CLI [`gh`](https://cli.github.com), logged in with `gh auth login`):
+
+          ```bash
+          INSTALL_DIR="${{ vars.INSTALL_DIR || '$HOME/Applications' }}"
+          mkdir -p "$INSTALL_DIR" \
+            && gh run download ${{ github.run_id }} --repo ${{ github.repository }} \
+                 --name ${{ env.ARTIFACT_NAME }} --dir "$INSTALL_DIR" \
+            && chmod +x "$INSTALL_DIR"/*.AppImage \
+            && echo "Installed to $INSTALL_DIR — launch SteamDualBoot from there."
+          ```
+
+          No `gh`? On a **public** repo you can download tokenless via nightly.link:
+
+          ```bash
+          curl -L -o steamdualboot.zip \
+            "https://nightly.link/${{ github.repository }}/actions/runs/${{ github.run_id }}/${{ env.ARTIFACT_NAME }}.zip" \
+            && unzip -o steamdualboot.zip -d "${{ vars.INSTALL_DIR || '$HOME/Applications' }}" \
+            && chmod +x "${{ vars.INSTALL_DIR || '$HOME/Applications' }}"/*.AppImage
+          ```
+
+          > Set the repository variable **`INSTALL_DIR`** to change the install location (default `$HOME/Applications`). Artifacts expire after 90 days.
+          EOF
+          # Also echo to the job log for convenience.
+          echo "Install dir: $INSTALL_DIR"
+          echo "Artifact:    ${{ env.ARTIFACT_NAME }} (run ${{ github.run_id }})"
